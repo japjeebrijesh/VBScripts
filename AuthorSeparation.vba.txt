@@ -1,0 +1,51 @@
+Sub Macro1()
+'
+' The problem is that for a publication database there are multiple authors in a cell
+' the target is to create additional rows in such a manner that each author appears only once in a row
+
+'
+'before starting the function make sure that all the authors are split by comma only
+' replace all the "and" and "/" characters with comma (",") using find and replace
+' r:row number
+' c: author column
+
+r = 4 'rows are starting from row number four(4)
+c = 3 'author column is c column
+filledRow = True  'to check whether there is a value in author cell
+If Len(Cells(r, c).Value) > 1 Then filledRow = True
+
+
+While filledRow
+    x = Cells(r, c).Value
+    ac = Len(x) - Len(Replace(x, ",", "")) 'check occurrance of multiple authors
+    If ac > 0 Then
+        Authors = Split(x, ",") ' put the authors into an array
+        ac = UBound(Authors) 'count the size of array or numuber of authors, index starts from zero
+    End If
+    'MsgBox x & " before: " & ac
+    If ac > 0 Then
+        For j = 1 To ac
+            Rows(r & ":" & r).Select
+            Selection.Copy
+            Rows(r + 1 & ":" & r + 1).Select
+            Selection.Insert shift:=xlDown
+            'change the author columns with single authors
+            Cells(r + 1, c).Value = Trim(Authors(j))
+        Next ' close for loop after repetitive coping of cells
+    End If 'close if for ac>1
+    If ac > 0 Then Cells(r, c).Value = Trim(Authors(0))  'replace the author of first row with single/first author
+    r = r + ac + 1
+    
+    If Not (Len(Cells(r, c).Value) > 1) Then filledRow = False 'break if the cell value is zero
+Wend 'close for loop for r/rows
+
+End Sub
+Sub test()
+r = 14
+c = 3
+x = Cells(r, c).Value
+Authors = Split(x, ",") ' put the authors into an array
+ac = UBound(Authors) 'count the size of array or numuber of authors, index starts from zero
+
+MsgBox x & "," & Authors(0) & "," & ac
+End Sub
